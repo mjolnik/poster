@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% if profile %}
+<div class="container text-center" xmlns="http://www.w3.org/1999/html">
+        <div class="row">
+            <div class="col-8">
+                <h1>{{ profile.user.username }}'s Profile</h1><br/>
+                    {% if posts %}
+                    {% for post in posts %}
+                        {% include 'post_base.html' %}
+                    {% endfor %}
+                    {% endif %}
+            </div>
+            <div class="col-4">
+                <br/><br/><br/>
+                {% if profile.profile_image %}
+                    <img src="{{ profile.profile_image.url }}" width=200 height=200 class="img-thumbnail rounded-circle">
+                {% else %}
+                    <img src="{% static 'images/default_pfp.png' %}" width=200 height=200 class="img-thumbnail rounded-circle" alt="Profile Image">
+                {% endif %}
+                <br/><br/>
+                {% if profile.website_link %}
+                    <a href="{{ profile.website_link }}" target="new"><i class="fa-solid fa-house"></i></i></a>
+                    &nbsp;
+                {% endif %}
+                {% if profile.vk_link %}
+                    <a href="{{ profile.vk_link }}" target="new"><i class="fa-brands fa-vk"></i></a>
+                {% endif %}
+                <br/><br/>
+                {% if profile.profile_bio %}
+                <p align="center">{{ profile.profile_bio }}</p>
+                {% endif %}
+                <br/><br/>
+                <div class="card">
+                <h5 class="card-header">Follows</h5>
+                    <div class="card-body">
+                        <p class="card-text">
+                        {% for following in profile.follows.all %}
+                        <a href="{% url 'profile' following.user.id %}">@{{ following|lower }}</a>
+                        <a href="{% url 'unfollow' following.user.id %}"><i class="fa-solid fa-xmark" style="color: Red"></i></a>
+                        <br/>
+                        {% endfor %}
+                        </p>
+                    </div>
+                </div>
+                <br/><br/>
+                <div class="card">
+                    <h5 class="card-header">Followed By</h5>
+                        <div class="card-body">
+                            <p class="card-text">
+                                {% for following in profile.followed_by.all|slice:3 %}
+                                    <a href="{% url 'profile' following.user.id %}">@{{ following|lower }}</a>&nbsp;
+                                    {% if following not in profile.follows.all %}
+                                        <a href="{% url 'follow' following.user.id %}">
+                                        <i class="fa fa-user-plus small" style="color: Gray"></i></a>
+                                    {% endif %}
+                                    <br/>
+                                {% endfor %}
+                            </p>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'profile_followers'  profile.user.id %}">Show all</a>
+                        </div>
+                </div>
+                <br/>
+    <form method="POST">
+        {% csrf_token %}
+        {% if profile in user.profile.follows.all %}
+            <button class="btn btn-outline-danger"
+                name="follow" value="unfollow"
+                type="submit">Unfollow @{{ profile.user.username|lower }}
+            </button>
+        {% else %}
+            <button class="btn btn-outline-success"
+                name="follow" value="follow"
+                type="submit">Follow @{{ profile.user.username|lower }}
+            </button>
+        {% endif %}
+    </form>
+<br/>
+                {% if request.user.id == profile.user.id %}
+                    <a href="{% url 'update_user' %}" class="btn btn-outline-secondary">Update Profile</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

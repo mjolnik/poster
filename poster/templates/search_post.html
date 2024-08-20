@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>Search Posts!</h1>
+<br/>
+    <form method=POST>
+        {% csrf_token %}
+        <input type="input" class="form-control" placeholder="Search Posts" name="search">
+        <br/>
+        <button type="submit" class="btn btn-secondary">Search</button>
+    </form>
+<br/>
+{% if search %}
+    <h3>You searched for: {{ search }}</h3>
+    {% for post in searched %}
+        {% include 'post_base.html' %}
+    {% endfor %}
+{% else %}
+    {% if searched == None %}
+    {% else %}
+        No results were found for your request
+    {% endif %}
+{% endif %}
+{% endblock %}
